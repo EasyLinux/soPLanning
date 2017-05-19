@@ -1,0 +1,10 @@
+<?php
+
+// Database Parameters
+$cfgHostname = 'mysql';
+$cfgDatabase = 'soPlanning';
+$cfgUsername = 'soPlanning';
+$cfgPassword = 'soPlanning';
+$cfgSqlType = 'mysql';
+$cfgPrefix = 'planning_';
+?>

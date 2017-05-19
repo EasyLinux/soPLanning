@@ -1,0 +1,1 @@
+le JS a été modifié pour etre compatible bootstrap 2..3.2!

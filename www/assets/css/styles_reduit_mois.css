@@ -1,0 +1,22 @@
+/* Overide styles.css */
+.cellProject {
+	min-width: 25px;
+	height: 12px;
+}
+
+.cellHolidays {
+	min-width: 25px;
+	height: 12px;
+}
+
+.planningContent th div {
+	min-width: 25px;
+}
+
+.planningContent td.week {
+	min-width: 25px;
+}
+
+.planningContent td.weekend {
+	min-width: 25px;
+}

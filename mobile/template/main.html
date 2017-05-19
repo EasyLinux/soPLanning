@@ -1,0 +1,66 @@
+  <div class="container-fluid">
+    <form class="form-horizontal" role="form" action"index.php" method="post" id='Main'>
+	<div class="row">
+		<div class="col-md-4">
+			<button type="button" class="btn btn-primary" onclick='Logout();'>
+				Quitter
+			</button>      
+    </div>
+		<div class="col-md-8">
+			<form class="form-horizontal" role="form">
+				<div class="form-group">
+					<button class="btn btn-default">
+						Choisir la personne
+					</button>
+  				<button data-toggle="dropdown" class="btn btn-default dropdown-toggle">
+    				<span class="caret"></span>
+      		</button>
+  				<ul class="dropdown-menu">
+    				<li>
+      				<a href="#">Serge NOEL</a>
+            </li>
+            <li>
+              <a href="#">Piseth LY</a>
+    				</li>
+          </ul>
+        </div>
+			</form> 
+    </div>
+  </div>
+	<div class="row">    
+    <div class="col-md-12">
+			<div class="panel-group" id="panel-278105">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						 <a class="panel-title" data-toggle="collapse" data-parent="#panel-278105" href="#panel-element-846151">Semaine 1</a>
+					</div>
+					<div id="panel-element-846151" class="panel-collapse collapse in">
+						<div class="panel-body">
+							Projet 1
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						 <a class="panel-title" data-toggle="collapse" data-parent="#panel-278105" href="#panel-element-670545">Semaine 2</a>
+					</div>
+					<div id="panel-element-670545" class="panel-collapse collapse">
+						<div class="panel-body">
+							Projet 2
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+          <input type='hidden' name='action' id='action' value='' />
+  </form>
+</div>
+
+<script type='text/javascript'>
+  function Logout()
+  {
+    document.getElementById('action').value='logout';
+    document.getElementById('Main').submit();
+  }
+</script>

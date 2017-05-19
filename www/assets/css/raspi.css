@@ -1,0 +1,88 @@
+body {
+  color: black;
+  font-size: 12px;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+
+thead {
+  height:50px;
+}
+
+tbody {
+  height:500px;
+  overflow:auto;
+}
+
+.fTh {
+    border: 1px solid #C0C0C0;
+    border-collapse: collapse;
+    width: 60px;
+}
+
+th {
+    border: 1px solid #C0C0C0;
+    border-collapse:  collapse;
+    color:            #1db0dc;
+}
+
+td {
+    border: 1px solid #C0C0C0;
+    border-collapse: collapse;
+}
+
+.raspi {
+  width: 130px;
+  font-size: 12px;
+}
+
+.current {
+  background-color: #b4eeff;
+}
+
+tr.empty, td.empty {
+  background-color: #D0D0D0;
+  height: 3px;
+  overflow: hidden;
+  font-size: 2px;
+}
+
+th.empty {
+  background-color: #D0D0D0;
+  width:  3px;
+  overflow: hidden;
+  font-size: 2px;
+}
+
+.emptyCol {
+  background-color: #D0D0D0;
+  width:  5px;
+  overflow: hidden;
+  font-size: 2px;
+}
+
+.day {
+  border-right: 1px solid #1db0dc;
+  color:  #1db0dc;
+  width:  15px;
+}
+
+.ferie {
+  background-color: #FF8484;
+}
+
+.Popup {
+  border: 1px sold #1DB0DC;
+  border-radius:   5px;
+  background-color: #DDF0FC;
+  width:  300px;
+  padding: 20px;
+  position: absolute;
+  left: 350px;
+  top: 200px;
+  display: none;
+}
