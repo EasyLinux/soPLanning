@@ -1,0 +1,3 @@
+config.inc
+database.inc
+smarty/templates_c/*
