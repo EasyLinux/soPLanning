@@ -6,7 +6,7 @@ $bMobile = false;
 $bRaspi = false;
 foreach( $aAgents as $sAgent )
 {
-  if( strpos($aAgent,$userAgent) > 0)
+  if( in_array($userAgent,$aAgents) > 0)
           $bMobile = true;
 }
 

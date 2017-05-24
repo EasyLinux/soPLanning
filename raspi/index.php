@@ -7,11 +7,12 @@ require_once(BASE . '/../config.inc');
 require_once(BASE . '/../includes/class_raspi.inc');
 
 /*
- * Read soPlanning configuration values
+ * Configuration de soPlanning
  */
+// Lire les donn�es soPlanning
 $mysqli = new mysqli($cfgHostname, $cfgUsername, $cfgPassword, $cfgDatabase);
 
-// Check connection 
+// check connection 
 if (mysqli_connect_errno()) {
     printf("ERREUR Connection a la base soPlanning: %s\n", mysqli_connect_error());
     exit();
@@ -28,9 +29,10 @@ $aWeekDays = ['Lu','Ma','Me','Je','Ve'];
 $aWeeks = $oTable->getLines(CONFIG_WALL_DISPLAY_WEEKS);
 $aTasks = $oTable->Tasks;
 
-$iReload = CONFIG_WALL_DISPLAY_REFRESH * 60 * 1000; // refresh display value
+$iReload = CONFIG_WALL_DISPLAY_REFRESH * 60 * 1000; // recharger la page toutes les x minutes
+//$iReload = 30 * 1000;
+//echo nl2br(print_r($aWeeks,true));
 
-// Pass parameters to template
 $aCalendar = [
     'Title' => 'Agenda',
     'Users' => $aUsers,
@@ -45,6 +47,5 @@ $aCalendar = [
 
 $smarty->assign('aCalendar',$aCalendar);
 
-// Display template
 $smarty->display('wall_display.tpl');
 

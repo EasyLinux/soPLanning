@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.29, created on 2017-04-28 16:52:53
+<?php /* Smarty version 2.6.29, created on 2017-05-17 13:40:50
          compiled from wall_display.tpl */ ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -22,8 +22,10 @@
   </head>
   <body>
     <div class="container">
-      <table style='table-layout: fixed; word-wrap: break-word;'>
+<!--      <table style='table-layout: fixed; word-wrap: break-word;'> -->
+      <table class='scroll'>
         <thead>
+	 <tr>
           <th class='fTh' onClick='selectUsers();'>Sem</th>
           <?php $_from = $this->_tpl_vars['aCalendar']['Users']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
     foreach ($_from as $this->_tpl_vars['User']):
@@ -33,6 +35,7 @@
 px'><?php echo $this->_tpl_vars['User']['Name']; ?>
 </th>
           <?php endforeach; endif; unset($_from); ?>
+         </tr>
         </thead>
         <tbody>
           <?php $_from = $this->_tpl_vars['aCalendar']['Weeks']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }$this->_foreach['Week'] = array('total' => count($_from), 'iteration' => 0);

@@ -1,14 +1,15 @@
 <?php
 /* 
- * This file is called from wall panel display 
+ * This file is called for a wall paner display (we use raspberry pi)
  */
 define('BASE', '.');
 require_once(BASE . '/../config.inc');
 require_once(BASE . '/../includes/class_raspi.inc');
 
 /*
- * read soPlanning parameters
+ * Configuration de soPlanning
  */
+// Lire les donnees soPlanning
 $mysqli = new mysqli($cfgHostname, $cfgUsername, $cfgPassword, $cfgDatabase);
 
 // check connection 
@@ -17,7 +18,6 @@ if (mysqli_connect_errno()) {
     exit();
 }
 
-// set Display to true or false for user
 if( $_POST['action'] == "switchDisplay" )
 {
   $SQL = "UPDATE planning_user SET display=".$_POST['Val']

@@ -68,8 +68,7 @@ $oPlanning->addUsers($aInsert);
 // Modification des utilisateurs déjà présents
 $oPlanning->modUsers($aUpdate);
 
-echo B// TODO : Supprimer les congÃ©s futurs avant synchronisation
-OLD . "Synchronisation conges" . ENDBOLD . NL;
+echo BOLD . "Synchronisation conges" . ENDBOLD . NL;
 $aSoPlanningHolidays = $oPlanning->getHolidays();
 
 // Transformer les périodes en jour exceptionnel

@@ -1,6 +1,9 @@
 <?php
+
+
+
 /**
- * Description of soPlanninClass
+ * Description of cronClass
  *
  * @author Serge NOEL <serge.noel@net6a.com>
  */
@@ -252,12 +255,6 @@ class soPlanningClass {
     }
   }
   
-  /**
-   * La liste des tâches provient de librePlan, 
-   * une tâche unique est identifiée apr son identifiant+uid
-   * 
-   * @param array aTask 
-   */
   public function updateTasks($aTasks)
   {
     $spTasks = array();

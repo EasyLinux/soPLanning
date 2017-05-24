@@ -2,7 +2,10 @@
 require_once('../database.inc');
 define('BASE', '.');
 require_once('../config.inc');
-require_once('getsql.php');
+//require_once('getsql.php');
+
+echo 'Dans mobile';
+die();
 
 $mysqli = new mysqli($cfgHostname, $cfgUsername, $cfgPassword, $cfgDatabase);
 $smarty = new MySmarty();

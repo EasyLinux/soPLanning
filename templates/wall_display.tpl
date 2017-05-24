@@ -19,13 +19,16 @@
   </head>
   <body>
     <div class="container">
-      <table style='table-layout: fixed; word-wrap: break-word;'>
+<!--      <table style='table-layout: fixed; word-wrap: break-word;'> -->
+      <table class='scroll'>
         <thead>
+	 <tr>
           <th class='fTh' onClick='selectUsers();'>Sem</th>
           {foreach from=$aCalendar.Users item=User}
           <th class='empty'>&nbsp;</th>
           <th colspan='2' width='{$aCalendar.width}px'>{$User.Name}</th>
           {/foreach}
+         </tr>
         </thead>
         <tbody>
           {foreach from=$aCalendar.Weeks item=Week name=Week}
@@ -71,17 +74,14 @@
       </br />
       <input type='button' value='Quitter' onclick='popOff();'/>
     </div>
-
     <script type="text/javascript">
 setTimeout("ReloadPage();", {$aCalendar.Reload});
-{literal}
+
 function cooltip_0()
-{
+{literal}{{/literal}
 // Do nothing
 return ;
-}
-
-{/literal}
+{literal}}{/literal}
 {foreach from=$aCalendar.Tasks item=Task}
 function cooltip_{$Task.pid}()
 {literal}{{/literal}
@@ -128,24 +128,6 @@ return coolTip(Html);
         xhttp.send('action=switchDisplay&Uid='+User.name+'&Val='+Val);
         //console.log('action=switchDisplay&Uid='+User.name+'&Val='+Val);
       }
-
-
-			$(document).ready(function() 
-			{
-				var txt = "";
-				txt += "<p>Total width/height: " + screen.width + "*" + screen.height + "</p>";
-				txt += "<p>Available width/height: " + screen.availWidth + "*" + screen.availHeight + "</p>";
-				txt += "<p>Color depth: " + screen.colorDepth + "</p>";
-				txt += "<p>Color resolution: " + screen.pixelDepth + "</p>";
-
-				//document.getElementById("demo").innerHTML = txt;
-    		/* 
-    		$(window).resize(function() 
-    		{
-        	$('tbody').css('height',($(window).height() - 70) + 'px');
-    		}).resize(); */
-			});
-      
     </script>
 {/literal}
 {include file="wall_footer.tpl"}
