@@ -1,24 +1,12 @@
 <?php
-$aAgents = ["ipod","iphone","ipad","android","palm"];
-$userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
+require_once 'database.inc';
 
 $bMobile = false;
-$bRaspi = false;
-foreach( $aAgents as $sAgent )
-{
-  if( in_array($userAgent,$aAgents) > 0)
-          $bMobile = true;
-}
+if(strncmp($_SERVER['REMOTE_ADDR'],$myNetwork,strlen($myNetwork)) != 0)
+  $bMobile = true;
 
-// Test 
-//$bRaspi = true;
 if( $bMobile )
   header("Location: mobile/index.php");
 else
-{
-  if( $bRaspi )
-    header("Location: raspi/index.php");
-  else 
-    header("Location: www/index.php");
-}
+  header("Location: www/index.php");
 exit();

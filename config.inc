@@ -1,7 +1,11 @@
 <?php
 
+//echo nl2br(print_r($_SERVER,true));
+//die();
+
+
 // Database Parameters => please modify the content of database.inc file, or use the installer
-require BASE . '/../database.inc';
+require $_SERVER['DOCUMENT_ROOT'].'/database.inc';
 
 // Active Directory vars
 $ADLogin = false;

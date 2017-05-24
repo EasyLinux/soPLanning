@@ -1,24 +1,20 @@
 <?php
-
-
-
 /**
  * Description of cronClass
  *
  * @author Serge NOEL <serge.noel@net6a.com>
  */
 class soPlanningClass {
-  
+
   private $cfgPlanning = array();
-  
-  
+
   public function __construct($Host, $User, $Pass, $Base)
   {
     $this->cfgPlanning['Host'] = $Host;
     $this->cfgPlanning['User'] = $User;
     $this->cfgPlanning['Pass'] = $Pass;
     $this->cfgPlanning['Base'] = $Base;
-    // Lire les données soPlanning
+    // Lire les donnï¿½es soPlanning
     $this->cfgPlanning['mysqli'] = new mysqli($this->cfgPlanning['Host'], 
             $this->cfgPlanning['User'], $this->cfgPlanning['Pass'], 
             $this->cfgPlanning['Base']);
@@ -26,7 +22,7 @@ class soPlanningClass {
     // check connection 
     if (mysqli_connect_errno()) 
     {
-      printf("ERREUR Connection à la base soPlanning: %s", 
+      printf("ERREUR Connection ï¿½ la base soPlanning: %s", 
               mysqli_connect_error());
       return false;
     } 
@@ -53,7 +49,7 @@ class soPlanningClass {
    */
   public function getDefines()
   {
-    // Chargement des données de config
+    // Chargement des donnï¿½es de config
     $stmt = $this->cfgPlanning['mysqli']->prepare("SELECT cle, valeur FROM planning_config;");
     $stmt->bind_result($cle, $valeur);
     $stmt->execute();
@@ -62,12 +58,26 @@ class soPlanningClass {
       define('CONFIG_' . $cle, $valeur);
     }
   }
+
+  /** 
+   * Supprimer les jours de congÃ©s futures afin de forcer 
+   *
+   */
+  public function delFutureHolidays()
+  {
+    $Today = date('Y-m-d');
+    $Sql = "DELETE "
+            . "FROM planning_user_exception "
+            . "WHERE jour > '$Today' AND cobid IS NOT NULL";
+    $stFind = $this->cfgPlanning['mysqli']->prepare($sql);
+    $stFind->execute();
+  }
   
   /**
    * syncGroups synchroniser les groupes
    * 
-   * @param array   $Groups     array avec le nom des groupes à synchroniser
-   * @return array              renvoi une array avec pour chaque nom l'identifiant associé
+   * @param array   $Groups     array avec le nom des groupes ï¿½ synchroniser
+   * @return array              renvoi une array avec pour chaque nom l'identifiant associï¿½
    */
   public function syncGroups($Groups)
   {
@@ -158,7 +168,7 @@ class soPlanningClass {
   }
   
   /**
-   * getHolidays, retourne les jours de congés
+   * getHolidays, retourne les jours de congï¿½s
    * @return type
    */
   public function getHolidays()
@@ -180,8 +190,8 @@ class soPlanningClass {
 
   /**
    * setHolidays 
-   * @param array   $aPlanning      // Congés de soPlanning
-   * @param array   $aInfocob       // Congés de InfoCob
+   * @param array   $aPlanning      // Congï¿½s de soPlanning
+   * @param array   $aInfocob       // Congï¿½s de InfoCob
    * @return type
    */
   public function setHolidays($aPlanning, $aInfocob)

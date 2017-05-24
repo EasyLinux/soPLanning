@@ -2,10 +2,7 @@
 require_once('../database.inc');
 define('BASE', '.');
 require_once('../config.inc');
-//require_once('getsql.php');
-
-echo 'Dans mobile';
-die();
+require_once('getsql.php');
 
 $mysqli = new mysqli($cfgHostname, $cfgUsername, $cfgPassword, $cfgDatabase);
 $smarty = new MySmarty();
@@ -95,7 +92,7 @@ function getMainDatas($mysqli, $Uid)
 
 function isValid($mysqli, $login, $password)
 {
-  $Sql = getsql($login, $password);
+  $Sql = getSql($login, $password);
   $stmt = $mysqli->prepare($Sql);
   $stmt->execute();
   $stmt->bind_result($uid,$name);

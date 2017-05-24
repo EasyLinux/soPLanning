@@ -4,7 +4,7 @@ require_once('class/soPlanningClass.inc');
 require_once('class/infocobClass.inc');
 require_once('class/librePlanClass.inc');
 
-// Déterminer si appel depuis Web ou ligne de commande
+// Dï¿½terminer si appel depuis Web ou ligne de commande
 if( is_null($_SERVER['_']))
 {
   define('NL',"<br />\n");
@@ -20,25 +20,25 @@ else
   define('WWW',false);
 }
 
-// Connexion à soPlanning
+// Connexion ï¿½ soPlanning
 $oPlanning = new soPlanningClass($cfgHostname,$cfgUsername,$cfgPassword,$cfgDatabase);
 // Obtenir les constantes contenues dans la table planning_config
 $oPlanning->getDefines();
 $oPlanning->setDebug(false);
 
-// Connexion à InfoCob
+// Connexion ï¿½ InfoCob
 $oInfoCob = new infocobClass();
 
-// Les groupes à utiliser
+// Les groupes ï¿½ utiliser
 $Groups = explode(',',CONFIG_SYNCHRONIZE_GROUPS);
 // Synchroniser les groupes de soPLanning
 $aGroups = $oPlanning->syncGroups($Groups);
 
 // Obtenir la liste des utilisateurs d'InfoCob
 $aInfoCobUsers = $oInfoCob->getUserList($Groups);
-// Obtenir la liste des congés
+// Obtenir la liste des congï¿½s
 $aInfocobHolidays = $oInfoCob->getNonWorkingDays();
-// Ajouter le gid à la liste utilisateur
+// Ajouter le gid ï¿½ la liste utilisateur
 foreach( $aInfoCobUsers as &$aInfoCobUser )
 {
   $aInfoCobUser['gid'] = $aGroups[$aInfoCobUser['groupe']];
@@ -63,20 +63,22 @@ foreach( $aInfoCobUsers as $InfoCobUser)
   }
 }
 
-// Ajout des utilisateurs non présents
+// Ajout des utilisateurs non prï¿½sents
 $oPlanning->addUsers($aInsert);
-// Modification des utilisateurs déjà présents
+// Modification des utilisateurs dï¿½jï¿½ prï¿½sents
 $oPlanning->modUsers($aUpdate);
 
 echo BOLD . "Synchronisation conges" . ENDBOLD . NL;
 $aSoPlanningHolidays = $oPlanning->getHolidays();
 
-// Transformer les périodes en jour exceptionnel
+// Transformer les pï¿½riodes en jour exceptionnel
 $aHolidays = getHolidays($aInfocobHolidays);
 
+// Supprimer les congÃ©s futurs
+$oPlanning->delFutureHolidays();
+
 // Positionner les vacances dans soPlanning
-$aPlanningAction = $oPlanning->setHolidays($aHolidays, 
-        $aSoPlanningHolidays);
+$aPlanningAction = $oPlanning->setHolidays($aHolidays, $aSoPlanningHolidays);
 
 $oPlanning->saveHolidaysChanges($aPlanningAction);
 
@@ -107,9 +109,8 @@ foreach( $aInfocobHolidays as &$aIH)
   $aIH['user'] = $aInfoCobUsers[$aIH['uid']]['nom'] . 
           " " . $aInfoCobUsers[$aIH['uid']]['prenom'];
 }
-// $oLibrePlan->updateCalendars($aInfocobHolidays);
 
-// Mettre à jour les projets
+// Mettre ï¿½ jour les projets
 echo "  Mise a jour des projets" .NL;
 $aLPProjects = $oLibrePlan->getProjects();
 $oPlanning->updateProjects($aLPProjects);

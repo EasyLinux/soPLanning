@@ -1,9 +1,7 @@
 <?php
 
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Port utilise : 3050
  */
 
 /**
@@ -50,8 +48,8 @@ class infocobClass {
   }
 
   /**
-   * Retrouve les congé à partir de la date prévue
-   * @return array    Dates de congés
+   * Retrouve les congï¿½ ï¿½ partir de la date prï¿½vue
+   * @return array    Dates de congï¿½s
    */
   public function getNonWorkingDays()
   {
@@ -82,7 +80,7 @@ class infocobClass {
     $this->And = '';
     $this->Equipe = '(';
     
-    // Lister les différentes équipes (FAMILLE)
+    // Lister les diffï¿½rentes ï¿½quipes (FAMILLE)
     foreach($Groups as $Group)
     {
       $this->Equipe .= "$Or i_familleinterlocuteur='$Group'";
