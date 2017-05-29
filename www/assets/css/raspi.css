@@ -4,13 +4,13 @@ body {
 }
 
 table.scroll tbody {
-/*    display: block; */
+    display: block;
     overflow-y: scroll;
     height: 800px;
 }
 
 table.scroll thead { 
-/*    display: block; */
+    display: block;
     height:  30px;
 }
 
@@ -38,6 +38,16 @@ th {
 }
 
 td {
+    border: 1px solid #C0C0C0;
+    border-collapse: collapse;
+}
+
+td.item {
+    border: 1px solid #C0C0C0;
+    border-collapse: collapse;
+}
+
+td.user {
     border: 1px solid #C0C0C0;
     border-collapse: collapse;
 }

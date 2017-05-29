@@ -19,14 +19,13 @@
   </head>
   <body>
     <div class="container">
-<!--      <table style='table-layout: fixed; word-wrap: break-word;'> -->
       <table class='scroll'>
         <thead>
-	 <tr>
+         <tr>
           <th class='fTh' onClick='selectUsers();'>Sem</th>
           {foreach from=$aCalendar.Users item=User}
           <th class='empty'>&nbsp;</th>
-          <th colspan='2' width='{$aCalendar.width}px'>{$User.Name}</th>
+          <th colspan='2' width='{$aCalendar.width} px'>{$User.Name}</th>
           {/foreach}
          </tr>
         </thead>
@@ -38,12 +37,12 @@
             {foreach from=$Week.Details item=Line name=Detail}
             {if $smarty.foreach.Week.index == 1}{assign var=Class value='class="current"'}{else}{assign var=Class value=''}{/if}
           <tr {$Class}>
-            {if $smarty.foreach.Detail.index == 0}<td rowspan='5'><b>{$Week.Num}</b><br />{$Week.firstDay}</td>{/if}
+            {if $smarty.foreach.Detail.index == 0}<td rowspan='5' width='65 px'><b>{$Week.Num}</b><br />{$Week.firstDay}</td>{/if}
             {foreach from=$Line item=Detail name=Idx}
               {if $Detail.Project == "F&eacute;ri&eacute;"}{assign var=Ferie value='ferie'}{else}{assign var=Ferie value=''}{/if}
             <td class='emptyCol'></td>
             <td class='day {$Ferie}'>{$aCalendar.weekDays[$smarty.foreach.Detail.index]}</td>
-            <td class='{$Ferie}' style='Background-color: #{$Detail.Color}' 
+            <td width='{$aCalendar.width-15} px' {$Ferie}' style='Background-color: #{$Detail.Color}' 
                 {if isset($Detail.pid)}onmouseover='cooltip_{$Detail.pid}();' onmouseout='nd();'{/if}>
                 <div class='raspi'>{$Detail.Project}</div></td>
             {/foreach}
@@ -128,6 +127,7 @@ return coolTip(Html);
         xhttp.send('action=switchDisplay&Uid='+User.name+'&Val='+Val);
         //console.log('action=switchDisplay&Uid='+User.name+'&Val='+Val);
       }
+
     </script>
 {/literal}
 {include file="wall_footer.tpl"}

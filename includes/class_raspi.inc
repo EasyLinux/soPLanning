@@ -66,7 +66,7 @@ class raspi {
           . "ON planning_periode.projet_id = planning_projet.projet_id "
           . "WHERE ? >= date_debut "
           . "AND ? <= date_fin";
-error_log(print_r($NonWorkingDays,true),0);
+
     $this->stmt = $this->dbCnx->prepare($SQL); 
     $this->stmt->bind_result($user_id, $nom, $couleur, $titre, $tid, $notes);
 
