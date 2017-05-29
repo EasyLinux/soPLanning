@@ -60,7 +60,7 @@ class soPlanningClass {
   }
 
   /** 
-   * Supprimer les jours de congés futures afin de forcer 
+   * Supprimer les jours de congés futurs afin de forcer la synchro
    *
    */
   public function delFutureHolidays()
@@ -68,16 +68,17 @@ class soPlanningClass {
     $Today = date('Y-m-d');
     $Sql = "DELETE "
             . "FROM planning_user_exception "
-            . "WHERE jour > '$Today' AND cobid IS NOT NULL";
-    $stFind = $this->cfgPlanning['mysqli']->prepare($sql);
-    $stFind->execute();
+            . "WHERE jour > ? AND cobid IS NOT NULL";
+    $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
+    $stmt->bind_param('s',$Today);
+    $stmt->execute();
   }
-  
+
   /**
    * syncGroups synchroniser les groupes
    * 
    * @param array   $Groups     array avec le nom des groupes � synchroniser
-   * @return array              renvoi une array avec pour chaque nom l'identifiant associ�
+   * @return array              renvoi une array avec pour chaque nom l identifiant associ�
    */
   public function syncGroups($Groups)
   {
@@ -315,6 +316,15 @@ class soPlanningClass {
         $stmt->execute();
       }
     }
-
+  // Supprimer les doublons
+  $Sql = "DELETE t1 "
+	. "FROM planning_periode AS t1, planning_periode AS t2 "
+	. "WHERE t1.periode_id > t2.periode_id "
+		. "AND t1.user_id = t2.user_id "
+		. "AND t1.task_id = t2.task_id "
+		. "AND t1.date_debut = t2.date_debut "
+		. "AND t1.date_fin = t2.date_fin";
+  $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
+  $stmt->execute();
   }
 }

@@ -77,6 +77,7 @@ $aHolidays = getHolidays($aInfocobHolidays);
 // Supprimer les congés futurs
 $oPlanning->delFutureHolidays();
 
+
 // Positionner les vacances dans soPlanning
 $aPlanningAction = $oPlanning->setHolidays($aHolidays, $aSoPlanningHolidays);
 

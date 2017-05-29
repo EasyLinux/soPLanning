@@ -30,8 +30,6 @@ $aWeeks = $oTable->getLines(CONFIG_WALL_DISPLAY_WEEKS);
 $aTasks = $oTable->Tasks;
 
 $iReload = CONFIG_WALL_DISPLAY_REFRESH * 60 * 1000; // recharger la page toutes les x minutes
-//$iReload = 30 * 1000;
-//echo nl2br(print_r($aWeeks,true));
 
 $aCalendar = [
     'Title' => 'Agenda',
