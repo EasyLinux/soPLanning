@@ -6,8 +6,8 @@ $smarty = new MySmarty();
 require BASE . '/../includes/header.inc';
 
 /*
- * Retourne une array avec pour chaque utilisateur la liste de ses congés
- * durant la période
+ * Retourne une array avec pour chaque utilisateur la liste de ses congï¿½s
+ * durant la pï¿½riode
  */
 function getHolidays($startDate, $endDate)
 {
@@ -19,7 +19,7 @@ function getHolidays($startDate, $endDate)
   // check connection 
   if (mysqli_connect_errno()) 
   {
-    printf("ERREUR Connection à la base soPlanning: %s\n", mysqli_connect_error());
+    printf("ERREUR Connection &agrave; la base soPlanning: %s\n", mysqli_connect_error());
     exit();
   } 
 
@@ -59,10 +59,10 @@ $droitAjoutPeriode=false;
 $_SESSION['lastURL'] = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 
 /*
- * Paramètres
+ * Paramï¿½tres
  */
 
-// chargement date de début
+// chargement date de dï¿½but
 $dateDebut = new DateTime();
 if(isset($_COOKIE['date_debut_affiche'])) {
   $_SESSION['date_debut_affiche'] = $_COOKIE['date_debut_affiche'];
@@ -240,9 +240,9 @@ $DAYS_INCLUDED = explode(',', CONFIG_DAYS_INCLUDED);
 $now = new DateTime();
 
 $aHolidays = getHolidays($dateDebut->format('Y-m-d'), $dateFin->format('Y-m-d'));
-echo "<!-- HOLIDAYS \n";
-print_r($aHolidays);
-echo "-->";
+//echo "<!-- HOLIDAYS \n";
+//print_r($aHolidays);
+//echo "-->";
 $nbJours = getNbJoursFull($dateDebut->format('Y-m-d'), $dateFin->format('Y-m-d'));
 $dateBoutonInferieur = clone $dateDebut;
 $dateBoutonInferieur->modify('-' . $nbJours . 'days');
@@ -806,18 +806,26 @@ while($ligneTmp = $lines->fetch()) {
       $js .= 'destinationsDrag[destinationsDrag.length] = "td_' . $ligneId . '_' . $tmpDate->format('Ymd')  . '";' . CRLF;
     }
 
-    if (in_array($tmpDate->format('Y-m-d'), $joursFeries)) {
+    if (in_array($tmpDate->format('Y-m-d'), $joursFeries)) 
+    {
       // jours fÃ©riÃ©s
       $ferieObj = new Ferie();
-      if($ferieObj->db_load(array('date_ferie', '=', $tmpDate->format('Y-m-d'))) && trim($ferieObj->libelle) != "") {
+      if($ferieObj->db_load(array('date_ferie', '=', $tmpDate->format('Y-m-d'))) && trim($ferieObj->libelle) != "") 
+      {
         $cooltip = '<b>' . $ferieObj->libelle . '</b>';
-        $ferie = '<div class="cellHolidays" onmouseover="return coolTip(\'' . addslashes($cooltip) . '\')" onmouseout="nd()" onClick="event.stopPropagation();">' . $smarty->get_config_vars('planning_ferie') . '</div>' . CRLF;
+        $ferie = '<div class="cellHolidays" onmouseover="return coolTip(\'' . 
+                addslashes($cooltip) . '\')" onmouseout="nd()" onClick="event.stopPropagation();">' . 
+                $smarty->get_config_vars('planning_ferie') . '</div>' . CRLF;
       }
     } else {
       $ferie = false;
     }
-    // SNOEL - LIGNE PLEINE AVEC CONGE ????
-    if (isset($joursOccupes[$tmpDate->format('Y-m-d')])) {
+    
+    // SNOEL - LIGNE PLEINE AVEC CONGE 
+//    if (isset($joursOccupes[$tmpDate->format('Y-m-d')])) {
+    // SNOEL - LIGNE PLEINE AVEC CONGE 
+    if (isset($joursOccupes[$tmpDate->format('Y-m-d')]) &&
+        !in_array($tmpDate->format('Y-m-d'), $aHolidays[$ligneId]) ) {
       // jours avec au moins une case remplie
       $html .= '<td ' . $styleLigne . ' id="td_' . $ligneId . '_' . $tmpDate->format('Ymd') . '"';
       if($user->checkDroit('tasks_modify_all') || $user->checkDroit('tasks_modify_own_project') || $user->checkDroit('tasks_modify_own_task')) {
@@ -1064,8 +1072,8 @@ while($ligneTmp = $lines->fetch()) {
       {
         $html .= "<td $styleLigne id='$Id' class='$classTD'>"
                 . "<div class='cellProject' style='background-color: "
-                . "#FF4444; left: 0px; top: 0px;'><div class='miniCode'>"
-                . "Congé</div><div class='cellEmpty'></div></div></td>";
+                . "#FF8484; left: 0px; top: 0px;'><div class='miniCode'>"
+                . "Cong&eacute;</div><div class='cellEmpty'></div></div></td>";
       }
       else 
       {
