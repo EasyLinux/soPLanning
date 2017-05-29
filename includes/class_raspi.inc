@@ -14,9 +14,9 @@ class raspi {
   private $dbResult;
   private $stmt;
   private $aDays = array();
-  private $aUsers = array();
-  private $allUsers = array();
-  public  $Tasks = array();
+  private $aUsers = array();   // Utilisateurs visibles
+  private $allUsers = array(); // Tous les utilisateurs
+  public  $Tasks = array();    // Les taches
 
   public function __construct()
   {
@@ -40,7 +40,7 @@ class raspi {
     {
       $this->allUsers[] = ['Name' => $Record["nom"], 'id' => $Record['user_id'], 'display' => $Record['display']];
       if( $Record['display'] == 1 )
-      {
+      { // utilisateur visible
         $this->aUsers[] = $Record['user_id'];
         $Users[] = ['Name' => $Record["nom"], 'id' => $Record['user_id'], 'display' => $Record['display']];
       }
@@ -58,8 +58,7 @@ class raspi {
   {
     $NonWorkingDays = $this->getNonWorkingDays($iNbWeeks);
     $holiDays = $this->getHoliDays();
-    $Return = array();  // Array � renvoyer
-    // $this->getDays($iNbWeeks);  // Liste des jours � consid�rer
+    $Return = array();  // Array a renvoyer
     $SQL  = "SELECT user_id, nom, couleur, titre, periode_id, notes " 
           . "FROM planning_periode "
           . "LEFT JOIN planning_projet "
@@ -69,7 +68,7 @@ class raspi {
 
     $this->stmt = $this->dbCnx->prepare($SQL); 
     $this->stmt->bind_result($user_id, $nom, $couleur, $titre, $tid, $notes);
-
+//echo nl2br(print_r($this->aUsers,true));
     // Calcul du lundi de la semaine dernière 
     $Start = date('d')-date('w')-6;
     // Parcourir <$iNbWeeks> semaines
@@ -88,7 +87,7 @@ class raspi {
           // Mémoriser le lundi
           if( date('w', $TheDay) == 1)
             $firstDay = date('d/m',$TheDay);
-          // D�tail des jours par utilisateur (remplit � vide)
+          // Detail des jours par utilisateur (remplit a vide)
           $aLine = array();
           $sDate = date('Y-m-d',$TheDay);
           foreach($this->aUsers as $sUsrId)
@@ -119,7 +118,10 @@ class raspi {
           {
             do
             {
-              $Idx = array_search($user_id, $this->aUsers); 
+              // Idx est l'index dans la liste des users
+              $Idx = array_search($user_id, $this->aUsers);
+              $Uid = $this->aUsers[$Idx]['id'];
+
               // Remplace projet et couleur
               $notes = str_replace("\n","",$notes);
               $this->Tasks[$tid] = ['Color' => $couleur, 
@@ -132,7 +134,14 @@ class raspi {
                 $nom = "F&eacute;ri&eacute;";
                 $couleur = HOLICOLOR;
                 }
-              if( $aLine[$Idx]['Project'] != "" && $aLine[$Idx]['Project'] != "F&eacute;ri&eacute;" )
+              if( $aLine[$Idx]['Project'] == "Cong&eacute;")
+                {
+                $nom = "Cong&eacute;";
+                $couleur = HOLICOLOR;
+                }
+              if( $aLine[$Idx]['Project'] != "" 
+                      && $aLine[$Idx]['Project'] != "F&eacute;ri&eacute;" 
+                      && $aLine[$Idx]['Project'] != "Cong&eacute;")
               { // Plusieurs taches
                 $nom .= "<br/>".$aLine[$Idx]['Project'];
               }

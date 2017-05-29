@@ -9,7 +9,7 @@ require_once(BASE . '/../includes/class_raspi.inc');
 /*
  * Configuration de soPlanning
  */
-// Lire les donn�es soPlanning
+// Lire les donnees soPlanning
 $mysqli = new mysqli($cfgHostname, $cfgUsername, $cfgPassword, $cfgDatabase);
 
 // check connection 
