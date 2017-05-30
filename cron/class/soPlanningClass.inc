@@ -188,31 +188,10 @@ class soPlanningClass {
     }    
     return $aHolidays;
   }
-
-  /**
-   * setHolidays 
-   * @param array   $aPlanning      // Cong�s de soPlanning
-   * @param array   $aInfocob       // Cong�s de InfoCob
-   * @return type
-   */
-  public function setHolidays($aPlanning, $aInfocob)
-  {
-    foreach( $aPlanning as &$Planning )
-    {
-      $bFind = false;
-      foreach( $aInfocob as $aInfo )
-      {
-        if( $aInfo['id'] == $Planning['id'] )
-          $bFind = true;
-      }
-      if( $bFind )
-        $Planning['action'] = 'update';
-      else 
-        $Planning['action'] = 'insert';
-    }
-    return $aPlanning;
-  }
   
+   /* 
+   * @param type $aPlanningAction
+   */
   public function saveHolidaysChanges($aPlanningAction)
   {
     foreach( $aPlanningAction as $aDo )
@@ -220,10 +199,10 @@ class soPlanningClass {
       $id  = $aDo['id'];
       $uid = $aDo['uid'];
       $day = $aDo['date'];
-      if( $aDo['action'] == 'insert')
+      //if( $aDo['action'] == 'insert')
         $Sql = "INSERT INTO planning_user_exception SET cobid='$id', user_id='$uid', jour='$day'";
-      else
-        $Sql = "UPDATE planning_user_exception SET jour = '$day' WHERE cobid='$id'";
+      //else
+      //  $Sql = "UPDATE planning_user_exception SET jour = '$day' WHERE cobid='$id'";
       $stSelect = $this->cfgPlanning['mysqli']->prepare($Sql);
       $stSelect->execute();
     }

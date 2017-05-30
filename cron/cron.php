@@ -69,20 +69,15 @@ $oPlanning->addUsers($aInsert);
 $oPlanning->modUsers($aUpdate);
 
 echo BOLD . "Synchronisation conges" . ENDBOLD . NL;
-$aSoPlanningHolidays = $oPlanning->getHolidays();
-
-// Transformer les p�riodes en jour exceptionnel
-$aHolidays = getHolidays($aInfocobHolidays);
 
 // Supprimer les congés futurs
-//$oPlanning->delFutureHolidays();
+$oPlanning->delFutureHolidays();
 
+// Transformer les periodes en jour exceptionnel
+$aHolidays = getHolidays($aInfocobHolidays);
 
-// Positionner les vacances dans soPlanning
-$aPlanningAction = $oPlanning->setHolidays($aHolidays, $aSoPlanningHolidays);
-
+// Sauvegarder les conges
 $oPlanning->saveHolidaysChanges($aPlanningAction);
-
 
 echo BOLD."Synchronisation librePlan" .ENDBOLD.NL;
 $oLibrePlan = new librePlanClass();
