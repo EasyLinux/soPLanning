@@ -7,7 +7,7 @@
 /**
  * Description of infocobClass
  *
- * @author root
+ * @author Serge NOEL <serge.noel@net6a.com>
  */
 class infocobClass {
   private $sBase;
@@ -16,6 +16,7 @@ class infocobClass {
   private $dbCnx;
   private $Equipe;
   private $And;
+  private $ConnectOk = true;
 
   public function __construct()
   {
@@ -25,9 +26,19 @@ class infocobClass {
 
     if( $this->dbCnx=ibase_connect($this->sBase,$this->sUser,$this->sPass) )
     {
-      return true;
+      error_log("Acces a la base OK",3,"Cron.log");
+    }
+    else
+    {
+      error_log("ERREUR: Acces a la base\n",3,"Cron.log");
+      $this->ConnectOk = false;
     }
     return false;
+  }
+
+  public function getConnectOk()
+  {
+    return $this->ConnectOk;
   }
 
   public function getUserList($Groups)

@@ -7,37 +7,57 @@ require_once('class/librePlanClass.inc');
 // D�terminer si appel depuis Web ou ligne de commande
 if( is_null($_SERVER['_']))
 {
-  define('NL',"<br />\n");
+  //header('Content-Type: text/event-stream');
+  //header('Cache-Control: no-cache');
+
+  //define('DATA', 'data: ');
+  define('DATA','');
+  define('NL',"\n");
   define('BOLD',"<b>");
   define('ENDBOLD',"</b>");
   define('WWW', true);
 }
-else 
+else
 {
+  define('DATA','');
   define('NL',"\n");
   define('BOLD',"\033[32m\033[1m"); // Couleur vert
   define('ENDBOLD',"\033[0m");
   define('WWW',false);
 }
-
-// Connexion � soPlanning
+error_log("\n\n\n".date("Y-m-d H:i:s"). " Début synchro\n",3,"Cron.log");
+// Connexion a soPlanning
 $oPlanning = new soPlanningClass($cfgHostname,$cfgUsername,$cfgPassword,$cfgDatabase);
 // Obtenir les constantes contenues dans la table planning_config
 $oPlanning->getDefines();
 $oPlanning->setDebug(false);
 
-// Connexion � InfoCob
+// Connexion a InfoCob
+echo DATA."Connection au serveur Infocob".NL;
+flush();
 $oInfoCob = new infocobClass();
+if( !$oInfoCob->getConnectOk() )
+  {
+  echo DATA."ERREUR: Pas de connection au serveur InfoCobob".NL;
+  flush();
+  die();
+  }
 
-// Les groupes � utiliser
+// Les groupes a utiliser
 $Groups = explode(',',CONFIG_SYNCHRONIZE_GROUPS);
 // Synchroniser les groupes de soPLanning
 $aGroups = $oPlanning->syncGroups($Groups);
 
 // Obtenir la liste des utilisateurs d'InfoCob
 $aInfoCobUsers = $oInfoCob->getUserList($Groups);
+error_log("\nListe des utilisateurs\n",3,"Cron.log");
+error_log(print_r($aInfoCobUsers,true),3,"Cron.log");
+
 // Obtenir la liste des cong�s
 $aInfocobHolidays = $oInfoCob->getNonWorkingDays();
+error_log("\nListe des conges\n",3,"Cron.log");
+error_log(print_r($aInfoCobHolidays,true),3,"Cron.log");
+
 // Ajouter le gid � la liste utilisateur
 foreach( $aInfoCobUsers as &$aInfoCobUser )
 {
@@ -115,6 +135,7 @@ echo "  Mise a jour des taches" .NL;
 $aLPTasks = $oLibrePlan->getUsersTasks();
 $oPlanning->updateTasks($aLPTasks);
 
+echo BOLD ."Synchronisation termin&eacute;e" .ENDBOLD.NL;
 die();
 
 
@@ -122,13 +143,16 @@ die();
 //Serveur AI = "192.168.110.5:D:/societe/infocob2000/Data/INFOCOB2000.GDB";
 //Serveur Docker "172.17.0.19:/var/lib/firebird/2.5/data/INFOCOB2000.GDB";
  */
-
+/**
+ * 
+ */
 function getHolidays($aDays)
 {
+  error_log(print_r($aDays,true),3,"Cron.log");
   $aHolidays = array();
   foreach( $aDays as $aPeriod )
   {
-    $id = substr($aPeriod['id'],0,-3) . substr($aPeriod['date'],5,2) . 
+    $id = substr($aPeriod['id'],0,-3) . substr($aPeriod['date'],5,2) .
             substr($aPeriod['date'],8,2);
     $uid = $aPeriod['uid'];
     $Start = $aPeriod['date'];

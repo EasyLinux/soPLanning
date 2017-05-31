@@ -658,6 +658,7 @@
   function synchronize()
   {
     var xhttp = new XMLHttpRequest();
+    document.getElementById("popContent").innerHTML = "Synchronisation en cours...";
     {/literal}
     document.getElementById('popTitle').innerHTML = '{#options_popup_titleS#}';
     {literal}
@@ -670,6 +671,18 @@
     xhttp.send();
   }
 
+  function synchronizeNew()
+  {
+    var source = new EventSource("/cron/cron.php");
+
+    document.getElementById("popContent").innerHTML = "Synchronisation en cours...<br/>";
+
+    source.onmessage = function(event) {
+      document.getElementById("popContent").innerHTML += "Data";
+      document.getElementById("popContent").innerHTML += event.data+ "<br/>";
+    };
+  }
+ 
   function getGroups()
   {
     var xhttp = new XMLHttpRequest();
