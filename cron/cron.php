@@ -55,17 +55,19 @@ error_log(print_r($aInfoCobUsers,true),3,"Cron.log");
 
 // Obtenir la liste des cong�s
 $aInfocobHolidays = $oInfoCob->getNonWorkingDays();
-error_log("\nListe des conges\n",3,"Cron.log");
-error_log(print_r($aInfoCobHolidays,true),3,"Cron.log");
 
 // Ajouter le gid � la liste utilisateur
 foreach( $aInfoCobUsers as &$aInfoCobUser )
 {
   $aInfoCobUser['gid'] = $aGroups[$aInfoCobUser['groupe']];
 }
+error_log("\nListe des conges\n",3,"Cron.log");
+error_log(print_r($aInfoCobHolidays,true),3,"Cron.log");
 
 // Obtenir la liste des utilisateurs soPlanning
 $aSoPlanningUsers = $oPlanning->getUserList();
+error_log("\nListe des utilisateurs soPlanning\n",3,"Cron.log");
+error_log(print_r($aSoPlanningUsers,true),3,"Cron.log");
 
 echo BOLD . "Synchronisation utilisateurs" . ENDBOLD . NL;
 $aInsert = array();
@@ -87,6 +89,10 @@ foreach( $aInfoCobUsers as $InfoCobUser)
 $oPlanning->addUsers($aInsert);
 // Modification des utilisateurs d�j� pr�sents
 $oPlanning->modUsers($aUpdate);
+error_log("\nUtilisateurs présents\n",3,"Cron.log");
+error_log(print_r($aUpdate,true),3,"Cron.log");
+error_log("\nUtilisateurs non présents\n",3,"Cron.log");
+error_log(print_r($aInsert,true),3,"Cron.log");
 
 echo BOLD . "Synchronisation conges" . ENDBOLD . NL;
 
@@ -95,6 +101,10 @@ $oPlanning->delFutureHolidays();
 
 // Transformer les periodes en jour exceptionnel
 $aHolidays = getHolidays($aInfocobHolidays);
+error_log("\nListe des conges\n",3,"Cron.log");
+error_log(print_r($aInfoCobHolidays,true),3,"Cron.log");
+error_log("\nListe des conges modifies\n",3,"Cron.log");
+error_log(print_r($aHolidays,true),3,"Cron.log");
 
 // Sauvegarder les conges
 $oPlanning->saveHolidaysChanges($aPlanningAction);
