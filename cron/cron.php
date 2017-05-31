@@ -12,7 +12,7 @@ if( is_null($_SERVER['_']))
 
   //define('DATA', 'data: ');
   define('DATA','');
-  define('NL',"\n");
+  define('NL',"<br>\n");
   define('BOLD',"<b>");
   define('ENDBOLD',"</b>");
   define('WWW', true);
