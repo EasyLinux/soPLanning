@@ -24,16 +24,10 @@ class infocobClass {
     $this->sUser = CONFIG_SYNCHRONIZE_USER;
     $this->sPass = CONFIG_SYNCHRONIZE_PASS;
 
-    if( $this->dbCnx=ibase_connect($this->sBase,$this->sUser,$this->sPass) )
+    if( !$this->dbCnx=ibase_connect($this->sBase,$this->sUser,$this->sPass) )
     {
-      error_log("Acces a la base OK",3,"Cron.log");
-    }
-    else
-    {
-      error_log("ERREUR: Acces a la base\n",3,"Cron.log");
       $this->ConnectOk = false;
     }
-    return false;
   }
 
   public function getConnectOk()

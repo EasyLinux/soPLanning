@@ -141,8 +141,9 @@ class soPlanningClass {
       $name = $Usr['nom'].' '.$Usr['prenom'];
       $login = explode('@',$Usr['email'])[0];
       $email = $Usr['email'];
-      $stSelect->bind_param('sisss', $uid, gid, $name, $login, $email);
+      $stSelect->bind_param('sisss', $uid, $gid, $name, $login, $email);
       $stSelect->execute();
+      echo DATA."  -&gt; $uid $name".NL;
     }
   }
   
@@ -194,16 +195,11 @@ class soPlanningClass {
    */
   public function saveHolidaysChanges($aPlanningAction)
   {
+    $Sql = "INSERT INTO planning_user_exception SET cobid=?, user_id=?, jour=?";
+    $stSelect = $this->cfgPlanning['mysqli']->prepare($Sql);
     foreach( $aPlanningAction as $aDo )
     {
-      $id  = $aDo['id'];
-      $uid = $aDo['uid'];
-      $day = $aDo['date'];
-      //if( $aDo['action'] == 'insert')
-        $Sql = "INSERT INTO planning_user_exception SET cobid='$id', user_id='$uid', jour='$day'";
-      //else
-      //  $Sql = "UPDATE planning_user_exception SET jour = '$day' WHERE cobid='$id'";
-      $stSelect = $this->cfgPlanning['mysqli']->prepare($Sql);
+      $stSelect->bind_param('sss', $aDo['id'], $aDo['uid'], $aDo['date']);
       $stSelect->execute();
     }
   }

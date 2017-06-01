@@ -150,9 +150,11 @@ class librePlanClass {
   public function getProjects()
   {
     $toDay = date('Y-m-d');
-    $Sql = "SELECT id, name FROM task_element WHERE start_date >= '$toDay' AND parent IS NULL";
+//    $Sql = "SELECT id, name FROM task_element WHERE start_date >= '$toDay' AND parent IS NULL";
+    $Sql = "SELECT id, name FROM task_element WHERE start_date >= ? OR end_date >= ? AND parent IS NULL";
         
     $stmt = $this->mysqli->prepare($Sql);
+    $stmt->bind_param('ss',$toDay,$toDay);
     $stmt->execute();
     $stmt->bind_result($id, $name);
     while($stmt->fetch())

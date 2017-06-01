@@ -4,7 +4,7 @@ require_once('class/soPlanningClass.inc');
 require_once('class/infocobClass.inc');
 require_once('class/librePlanClass.inc');
 
-// D�terminer si appel depuis Web ou ligne de commande
+// Determiner si appel depuis Web ou ligne de commande
 if( is_null($_SERVER['_']))
 {
   //header('Content-Type: text/event-stream');
@@ -25,7 +25,6 @@ else
   define('ENDBOLD',"\033[0m");
   define('WWW',false);
 }
-error_log("\n\n\n".date("Y-m-d H:i:s"). " Début synchro\n",3,"Cron.log");
 // Connexion a soPlanning
 $oPlanning = new soPlanningClass($cfgHostname,$cfgUsername,$cfgPassword,$cfgDatabase);
 // Obtenir les constantes contenues dans la table planning_config
@@ -33,7 +32,7 @@ $oPlanning->getDefines();
 $oPlanning->setDebug(false);
 
 // Connexion a InfoCob
-echo DATA."Connection au serveur Infocob".NL;
+echo DATA.BOLD."Connection au serveur Infocob".ENDBOLD.NL;
 flush();
 $oInfoCob = new infocobClass();
 if( !$oInfoCob->getConnectOk() )
@@ -42,6 +41,8 @@ if( !$oInfoCob->getConnectOk() )
   flush();
   die();
   }
+echo DATA."  Connect&eacute;".NL;
+flush();
 
 // Les groupes a utiliser
 $Groups = explode(',',CONFIG_SYNCHRONIZE_GROUPS);
@@ -50,27 +51,32 @@ $aGroups = $oPlanning->syncGroups($Groups);
 
 // Obtenir la liste des utilisateurs d'InfoCob
 $aInfoCobUsers = $oInfoCob->getUserList($Groups);
-error_log("\nListe des utilisateurs\n",3,"Cron.log");
-error_log(print_r($aInfoCobUsers,true),3,"Cron.log");
 
-// Obtenir la liste des cong�s
-$aInfocobHolidays = $oInfoCob->getNonWorkingDays();
-
-// Ajouter le gid � la liste utilisateur
+// Ajouter le gid à la liste utilisateur
 foreach( $aInfoCobUsers as &$aInfoCobUser )
 {
   $aInfoCobUser['gid'] = $aGroups[$aInfoCobUser['groupe']];
 }
-error_log("\nListe des conges\n",3,"Cron.log");
-error_log(print_r($aInfoCobHolidays,true),3,"Cron.log");
+/* DBG Utilisateurs
+$Handle = fopen('InfoUsers.csv','w');
+foreach($aInfoCobUsers as $aInfoCobUser)
+  fputcsv($Handle,$aInfoCobUser);	
+fclose($Handle); */
+
+// Obtenir la liste des congés
+$aInfocobHolidays = $oInfoCob->getNonWorkingDays();
+/* DBG Congés
+$Handle = fopen('InfoHolidays.csv','w');
+foreach($aInfocobHolidays as $aInfocobHoliday)
+  fputcsv($Handle,$aInfocobHoliday);	
+fclose($Handle); */
 
 // Obtenir la liste des utilisateurs soPlanning
 $aSoPlanningUsers = $oPlanning->getUserList();
-error_log("\nListe des utilisateurs soPlanning\n",3,"Cron.log");
-error_log(print_r($aSoPlanningUsers,true),3,"Cron.log");
 
 echo BOLD . "Synchronisation utilisateurs" . ENDBOLD . NL;
 $aInsert = array();
+$iInsert = 0;
 $aUpdate = array();
 foreach( $aInfoCobUsers as $InfoCobUser)
 {
@@ -78,6 +84,7 @@ foreach( $aInfoCobUsers as $InfoCobUser)
   if( !isset($aSoPlanningUsers[$InfoCobUser['uid']]) )
   {
     $aInsert[] = $InfoCobUser;
+    $iInsert++; 
   }
   else
   {
@@ -85,29 +92,33 @@ foreach( $aInfoCobUsers as $InfoCobUser)
   }
 }
 
-// Ajout des utilisateurs non pr�sents
+if( $iInsert != 0 )
+  echo DATA."  Il y a $iInsert nouveau(x) utilisateur(s)".NL;
+else
+  echo DATA."  Pas de nouveau utilisateur".NL;
+
+// Ajout des utilisateurs non présents
 $oPlanning->addUsers($aInsert);
-// Modification des utilisateurs d�j� pr�sents
+// Modification des utilisateurs déjà présents
 $oPlanning->modUsers($aUpdate);
-error_log("\nUtilisateurs présents\n",3,"Cron.log");
-error_log(print_r($aUpdate,true),3,"Cron.log");
-error_log("\nUtilisateurs non présents\n",3,"Cron.log");
-error_log(print_r($aInsert,true),3,"Cron.log");
 
-echo BOLD . "Synchronisation conges" . ENDBOLD . NL;
-
+echo BOLD . "Synchronisation cong&eacutes" . ENDBOLD . NL;
 // Supprimer les congés futurs
 $oPlanning->delFutureHolidays();
 
 // Transformer les periodes en jour exceptionnel
 $aHolidays = getHolidays($aInfocobHolidays);
-error_log("\nListe des conges\n",3,"Cron.log");
-error_log(print_r($aInfoCobHolidays,true),3,"Cron.log");
-error_log("\nListe des conges modifies\n",3,"Cron.log");
-error_log(print_r($aHolidays,true),3,"Cron.log");
+/* DBG Congés
+$Handle = fopen('soplanningHolidays.csv','w');
+foreach($aHolidays as $aHoliday)
+  fputcsv($Handle,$aHoliday);	
+fclose($Handle); */
 
 // Sauvegarder les conges
-$oPlanning->saveHolidaysChanges($aPlanningAction);
+$oPlanning->saveHolidaysChanges($aHolidays);
+$iDays = count($aHolidays);
+echo DATA."  Il y a $iDays jours de cong&eacute;s pr&eacute;vus".NL;
+
 
 echo BOLD."Synchronisation librePlan" .ENDBOLD.NL;
 $oLibrePlan = new librePlanClass();
@@ -119,14 +130,15 @@ foreach($aInfoCobUsers as &$aICU)
   if( !isset($aLibrePlanUsers[$aICU['uid']]))
   {
     $nif = $aICU['uid'];
-    echo "Veuillez creer un participant ayant pour id '$nif'".NL;
+    echo DATA."   Veuillez creer un participant ayant pour id '$nif'".NL;
   }  
   else 
   {
     $aICU['update'] = true; 
   }
 }
-
+$iNbre = count($aInfoCobUsers);
+echo DATA."  Mise &agrave; jours des participants ($iNbre)".NL;
 $oLibrePlan->updateWorkers($aInfoCobUsers);
 
 // Ajouter NOM/prenom
@@ -136,13 +148,28 @@ foreach( $aInfocobHolidays as &$aIH)
           " " . $aInfoCobUsers[$aIH['uid']]['prenom'];
 }
 
-// Mettre � jour les projets
-echo "  Mise a jour des projets" .NL;
+// Mettre à jour les projets
 $aLPProjects = $oLibrePlan->getProjects();
+//error_log("Projets\n".print_r($aLPProjects,true),3,'Cron.log');
+$iNbProjs = count($aLPProjects);
+echo "  Mise a jour des projets ($iNbProjs)" .NL;
 $oPlanning->updateProjects($aLPProjects);
+/* DBG Tâches
+$Handle = fopen('libreplanProjects.csv','w');
+foreach($aLPProjects as $aLPProject)
+  fputcsv($Handle,$aLPProject);	
+fclose($Handle); */
 
-echo "  Mise a jour des taches" .NL;
+
 $aLPTasks = $oLibrePlan->getUsersTasks();
+//error_log("Taches\n".print_r($aLPTasks,true),3,'Cron.log');
+$iNbTasks = count($aLPTasks);
+echo "  Mise a jour des taches assign&eacute;es ($iNbTasks)" .NL;
+/* DBG Tâches
+$Handle = fopen('libreplanTasks.csv','w');
+foreach($aLPTasks as $aLPTask)
+  fputcsv($Handle,$aLPTask);	
+fclose($Handle); */
 $oPlanning->updateTasks($aLPTasks);
 
 echo BOLD ."Synchronisation termin&eacute;e" .ENDBOLD.NL;
@@ -158,12 +185,11 @@ die();
  */
 function getHolidays($aDays)
 {
-  error_log(print_r($aDays,true),3,"Cron.log");
   $aHolidays = array();
   foreach( $aDays as $aPeriod )
   {
-    $id = substr($aPeriod['id'],0,-3) . substr($aPeriod['date'],5,2) .
-            substr($aPeriod['date'],8,2);
+    $id = $aPeriod['id'] . substr($aPeriod['date'],5,2)
+            . substr($aPeriod['date'],8,2);
     $uid = $aPeriod['uid'];
     $Start = $aPeriod['date'];
     if( !isset($aPeriod['date_fin']) )
@@ -173,7 +199,7 @@ function getHolidays($aDays)
     $End   = $aPeriod['date_fin'];
     while( $Start < $End )
     {
-      $id = substr($aPeriod['id'],0,-3) . substr($Start,5,2) 
+      $id = $aPeriod['id'] . substr($Start,5,2) 
                 . substr($Start,8,2);
       $aHolidays[] = ['id' => $id,'uid' => $uid,'date' => $Start];
       $Start = nextDay($Start);
