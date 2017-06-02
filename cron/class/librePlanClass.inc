@@ -12,19 +12,27 @@ class librePlanClass {
   private $Uids=array();
   private $Tasks=array();
   private $Projects=array();
+  private $iNbTasks; 		// Nombre de taches
+  private $bConnect;
   
   public function __construct()
   {
     $this->mysqli = new mysqli(CONFIG_LIBREPLAN_SERVER, CONFIG_LIBREPLAN_USER, 
             CONFIG_LIBREPLAN_PASS, CONFIG_LIBREPLAN_FILE);
     // check connection 
+    $this->bConnect = true;
     if (mysqli_connect_errno()) 
     {
       printf("ERREUR Connection à la base librePlan: %s", 
               mysqli_connect_error());
-      return false;
+      $this->bConnect=false;
     } 
     $this->getTasks();
+  }
+
+  public function isConnected()
+  {
+    return $this->bConnect;
   }
 
   public function getUsers()
@@ -69,10 +77,10 @@ class librePlanClass {
       $Xml .=   "<base-calendar name=\"$User\" code=\"$Nif\" "
               . "parent=\"CALENDAR0001\">\n"
               . "  <calendar-exception-list>";
-      
+
     }
   }
-  
+
   public function getUsersTasks()
   {
     $DayTasks=array();
@@ -87,12 +95,14 @@ class librePlanClass {
             . "LEFT JOIN resource_allocation AS Ra "
             . "ON Ra.id = Sdac.resource_allocation_id "
             . "LEFT JOIN task_element AS Te ON Te.id = Ra.task "
-            . "LEFT JOIN order_element AS Oe ON Oe.name = Te.name WHERE day >= '$toDay' "
+            . "LEFT JOIN order_element AS Oe ON Oe.name = Te.name "
+            . "WHERE nif LIKE '%ATL' AND day >= '$toDay' "
             . "ORDER BY W.nif, Te.name, Da.day";
     $stmt = $this->mysqli->prepare($Sql);
     $stmt->execute();
     $stmt->bind_result($day, $name, $surname, $nif, $tid, $tname, $parent, $tdesc);
 
+    $this->iNbTasks = 0;
     $told = 0;
     $Idx=0;
     while( $stmt->fetch())
@@ -101,12 +111,14 @@ class librePlanClass {
       {
         // Meme tache 
         $DayTasks[$Idx-1]['date_fin'] = $day;
+        $this->iNbTasks++;
       }
       else 
       {
         $told  = $tid;
         $DayTasks[$Idx]['tid'] = $tid;
         $DayTasks[$Idx]['user_id'] = $nif;
+        $DayTasks[$Idx]['task_id'] = $tid.$nif;
         $DayTasks[$Idx]['date_debut'] = $day;
         $DayTasks[$Idx]['date_fin'] = $day;
         $DayTasks[$Idx]['titre'] = str_replace("'","&apos;",$tname);
@@ -117,17 +129,23 @@ class librePlanClass {
         $Desc = str_replace("\n","",nl2br($tdesc));
         $DayTasks[$Idx]['description'] = str_replace("'","&apos;",$Desc);
         $Idx++;
+        $this->iNbTasks++;
       }
     }
     return $DayTasks;
   }
-    
+
+  public function getNbTasks()
+  {
+    return $this->iNbTasks;
+  }
+
   private function getParent($id)
   {
     $search = $id;
     while( $this->Tasks[$search]['parent'] != 0 )
       $search = $this->Tasks[$search]['parent'];
-    
+
     $prjId = $search; 
     return $prjId;
   }
@@ -136,7 +154,7 @@ class librePlanClass {
   {
     $toDay = date('Y-m-d');
     $Sql = "SELECT id, name, parent FROM task_element WHERE start_date >= '$toDay'";
-        
+
     $stmt = $this->mysqli->prepare($Sql);
     $stmt->execute();
     $stmt->bind_result($id, $name, $parent);

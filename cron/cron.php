@@ -124,6 +124,10 @@ echo DATA.SPACE."Il y a $iDays jours de cong&eacute;s pr&eacute;vus".NL;
 
 echo BOLD."Synchronisation librePlan" .ENDBOLD.NL;
 $oLibrePlan = new librePlanClass();
+if( $oLibrePlan->isConnected() )
+  echo SPACE.'Connect&eacute;'.NL;
+else
+  echo SPACE.'Pb connection &agrave; librePlan'.NL;
 
 $aLibrePlanUsers = $oLibrePlan->getUsers();
 
@@ -165,15 +169,14 @@ fclose($Handle); */
 
 $aLPTasks = $oLibrePlan->getUsersTasks();
 //error_log("Taches\n".print_r($aLPTasks,true),3,'Cron.log');
-$iNbTasks = count($aLPTasks);
+$iNbTasks = $oLibrePlan->getNbTasks();
 echo SPACE."Mise a jour des taches assign&eacute;es ($iNbTasks)" .NL;
 /* DBG Tâches
 $Handle = fopen('libreplanTasks.csv','w');
 foreach($aLPTasks as $aLPTask)
   fputcsv($Handle,$aLPTask);	
 fclose($Handle); */
-echo SPACE."En cours de modification".NL;
-//$oPlanning->updateTasks($aLPTasks);
+$oPlanning->updateTasks($aLPTasks);
 
 echo BOLD ."Synchronisation termin&eacute;e" .ENDBOLD.NL;
 die();

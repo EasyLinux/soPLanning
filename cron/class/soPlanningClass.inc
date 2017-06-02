@@ -236,7 +236,6 @@ class soPlanningClass {
                 . "nom='$nom' WHERE projet_id='$id'";
         $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
         $stmt->execute();
-        
       }
     }
   }
@@ -246,20 +245,33 @@ class soPlanningClass {
     $spTasks = array();
     $spTasksID = array();
     $dToday = date('Y-m-d');
-    $Sql = "SELECT periode_id, user_id FROM planning_periode WHERE date_debut >= ? OR date_fin >= ?";
+    $Sql = "SELECT periode_id, user_id, task_id FROM planning_periode WHERE (date_debut >= ? OR date_fin >= ?) AND task_id IS NOT NULL";
     $stSelect = $this->cfgPlanning['mysqli']->prepare($Sql);
     $stSelect->bind_param('ss',$dToday,$dToday);
     $stSelect->execute();
-    $stSelect->bind_result($tid,$uid);
+    $stSelect->bind_result($tid,$uid,$taskid);
     while( $stSelect->fetch() )
     {
-      $spTasks[] = $tid;
-      $spTasksID[] = $tid.$uid;
+      $spTasksID[] = $taskid;
     }
-error_log("Liste taskId\n".print_r($spTasksID,true),3,'Cron.log');
-error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
+    unset($stSelect);
+//error_log("Liste taskId\n".print_r($spTasksID,true),3,'Cron.log');
+//error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
+
+    $reqSql = "SELECT task_id, date_debut, date_fin "
+                . "FROM planning_periode "
+                . "WHERE (date_debut >= ? OR date_fin >= ?) "
+                . "AND task_id = ?";
+    $stReq = $this->cfgPlanning['mysqli']->prepare($reqSql);
+//error_log("$reqSql\n",3,'Cron.log');
     foreach($aTasks as $aTsk)
     {
+//error_log("$dToday : ".$aTsk['task_id']." : ",3,'Cron.log');
+      $stReq->bind_param('sss',$dToday,$dToday,$aTsk['task_id']);
+      $stReq->execute();
+      $stReq->store_result();
+//error_log($stReq->num_rows."\n",3,'Cron.log');
+
       $tid  = $aTsk['tid'];
       $pid  = $aTsk['prj_id'];
       $uid  = $aTsk['user_id'];
@@ -267,9 +279,11 @@ error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
       $eDate = $aTsk['date_fin'];
       $titre = $aTsk['titre'];
       $desc  = $aTsk['description'];
-      $taskid = $tid.$uid;
+      $taskid = $aTsk['task_id'];
       // if( !in_array($aTsk['tid'],$spTasks) )
-      if( !in_array($taskid,$spTasksID) )
+      if( $stReq->num_rows > 1 )
+        error_log("soPlanning: Il y a des doublons !");
+      if( $stReq->num_rows == 0 )
       {
         unset($stmt);
 
@@ -282,7 +296,7 @@ error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
         $stmt->bind_param('sssssss',$taskid,$pid,$uid,$sDate,$eDate,$titre,$desc);
         $stmt->execute();
       }
-      else 
+      if( $stReq->num_rows == 1 )
       {
         unset($stmt);
         $Sql = "UPDATE planning_periode SET "
@@ -298,7 +312,6 @@ error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
   $Sql = "DELETE t1 "
 	. "FROM planning_periode AS t1, planning_periode AS t2 "
 	. "WHERE t1.periode_id > t2.periode_id "
-		. "AND t1.user_id = t2.user_id "
 		. "AND t1.task_id = t2.task_id "
 		. "AND t1.date_debut = t2.date_debut "
 		. "AND t1.date_fin = t2.date_fin";
