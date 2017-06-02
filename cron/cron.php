@@ -173,7 +173,7 @@ foreach($aLPTasks as $aLPTask)
   fputcsv($Handle,$aLPTask);	
 fclose($Handle); */
 echo SPACE."En cours de modification".NL;
-$oPlanning->updateTasks($aLPTasks);
+//$oPlanning->updateTasks($aLPTasks);
 
 echo BOLD ."Synchronisation termin&eacute;e" .ENDBOLD.NL;
 die();
