@@ -15,6 +15,7 @@ if( is_null($_SERVER['_']))
   define('NL',"<br>\n");
   define('BOLD',"<b>");
   define('ENDBOLD',"</b>");
+  define('SPACE','&nbsp;&nbsp;&nbsp;&nbsp;');
   define('WWW', true);
 }
 else
@@ -23,6 +24,7 @@ else
   define('NL',"\n");
   define('BOLD',"\033[32m\033[1m"); // Couleur vert
   define('ENDBOLD',"\033[0m");
+  define('SPACE','    ');
   define('WWW',false);
 }
 // Connexion a soPlanning
@@ -41,7 +43,7 @@ if( !$oInfoCob->getConnectOk() )
   flush();
   die();
   }
-echo DATA."  Connect&eacute;".NL;
+echo DATA.SPACE."Connect&eacute;".NL;
 flush();
 
 // Les groupes a utiliser
@@ -93,9 +95,9 @@ foreach( $aInfoCobUsers as $InfoCobUser)
 }
 
 if( $iInsert != 0 )
-  echo DATA."  Il y a $iInsert nouveau(x) utilisateur(s)".NL;
+  echo DATA.SPACE."Il y a $iInsert nouveau(x) utilisateur(s)".NL;
 else
-  echo DATA."  Pas de nouveau utilisateur".NL;
+  echo DATA.SPACE."Pas de nouveau utilisateur".NL;
 
 // Ajout des utilisateurs non présents
 $oPlanning->addUsers($aInsert);
@@ -117,7 +119,7 @@ fclose($Handle); */
 // Sauvegarder les conges
 $oPlanning->saveHolidaysChanges($aHolidays);
 $iDays = count($aHolidays);
-echo DATA."  Il y a $iDays jours de cong&eacute;s pr&eacute;vus".NL;
+echo DATA.SPACE."Il y a $iDays jours de cong&eacute;s pr&eacute;vus".NL;
 
 
 echo BOLD."Synchronisation librePlan" .ENDBOLD.NL;
@@ -130,15 +132,15 @@ foreach($aInfoCobUsers as &$aICU)
   if( !isset($aLibrePlanUsers[$aICU['uid']]))
   {
     $nif = $aICU['uid'];
-    echo DATA."   Veuillez creer un participant ayant pour id '$nif'".NL;
-  }  
-  else 
+    echo DATA.SPACE."Veuillez creer un participant ayant pour id '$nif'".NL;
+  }
+  else
   {
     $aICU['update'] = true; 
   }
 }
 $iNbre = count($aInfoCobUsers);
-echo DATA."  Mise &agrave; jours des participants ($iNbre)".NL;
+echo DATA.SPACE."Mise &agrave; jours des participants ($iNbre)".NL;
 $oLibrePlan->updateWorkers($aInfoCobUsers);
 
 // Ajouter NOM/prenom
@@ -152,7 +154,7 @@ foreach( $aInfocobHolidays as &$aIH)
 $aLPProjects = $oLibrePlan->getProjects();
 //error_log("Projets\n".print_r($aLPProjects,true),3,'Cron.log');
 $iNbProjs = count($aLPProjects);
-echo "  Mise a jour des projets ($iNbProjs)" .NL;
+echo SPACE."Mise a jour des projets ($iNbProjs)" .NL;
 $oPlanning->updateProjects($aLPProjects);
 /* DBG Tâches
 $Handle = fopen('libreplanProjects.csv','w');
@@ -164,12 +166,13 @@ fclose($Handle); */
 $aLPTasks = $oLibrePlan->getUsersTasks();
 //error_log("Taches\n".print_r($aLPTasks,true),3,'Cron.log');
 $iNbTasks = count($aLPTasks);
-echo "  Mise a jour des taches assign&eacute;es ($iNbTasks)" .NL;
+echo SPACE."Mise a jour des taches assign&eacute;es ($iNbTasks)" .NL;
 /* DBG Tâches
 $Handle = fopen('libreplanTasks.csv','w');
 foreach($aLPTasks as $aLPTask)
   fputcsv($Handle,$aLPTask);	
 fclose($Handle); */
+echo SPACE."En cours de modification".NL;
 $oPlanning->updateTasks($aLPTasks);
 
 echo BOLD ."Synchronisation termin&eacute;e" .ENDBOLD.NL;
@@ -204,7 +207,6 @@ function getHolidays($aDays)
       $aHolidays[] = ['id' => $id,'uid' => $uid,'date' => $Start];
       $Start = nextDay($Start);
     }
-  
   }
   return $aHolidays;
 }

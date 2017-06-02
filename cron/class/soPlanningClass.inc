@@ -245,8 +245,10 @@ class soPlanningClass {
   {
     $spTasks = array();
     $spTasksID = array();
-    $Sql = "SELECT periode_id, user_id FROM planning_periode";
+    $dToday = date('Y-m-d');
+    $Sql = "SELECT periode_id, user_id FROM planning_periode WHERE date_debut >= ? OR date_fin >= ?";
     $stSelect = $this->cfgPlanning['mysqli']->prepare($Sql);
+    $stSelect->bind_param('ss',$dToday,$dToday);
     $stSelect->execute();
     $stSelect->bind_result($tid,$uid);
     while( $stSelect->fetch() )
@@ -254,7 +256,8 @@ class soPlanningClass {
       $spTasks[] = $tid;
       $spTasksID[] = $tid.$uid;
     }
-
+error_log("Liste taskId\n".print_r($spTasksID,true),3,'Cron.log');
+error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
     foreach($aTasks as $aTsk)
     {
       $tid  = $aTsk['tid'];
