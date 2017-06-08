@@ -23,7 +23,7 @@ class librePlanClass {
     $this->bConnect = true;
     if (mysqli_connect_errno()) 
     {
-      printf("ERREUR Connection à la base librePlan: %s", 
+      printf("ERREUR Connection ï¿½ la base librePlan: %s", 
               mysqli_connect_error());
       $this->bConnect=false;
     } 
@@ -84,7 +84,7 @@ class librePlanClass {
   public function getUsersTasks()
   {
     $DayTasks=array();
-    $toDay = date('Y-m-d');
+    $toDay = date('Y-m-d',mktime(0, 0, 0, date("m")  , date("d")-7, date("Y")));
     $Sql = "SELECT Da.day, W.first_name, W.surname, W.nif, "
             . "Te.id, Te.name, "
             . "Te.parent, Oe.description "
@@ -97,6 +97,7 @@ class librePlanClass {
             . "LEFT JOIN task_element AS Te ON Te.id = Ra.task "
             . "LEFT JOIN order_element AS Oe ON Oe.name = Te.name "
             . "WHERE nif LIKE '%ATL' AND day >= '$toDay' "
+            //. "WHERE nif LIKE '%ATL' "
             . "ORDER BY W.nif, Te.name, Da.day";
     $stmt = $this->mysqli->prepare($Sql);
     $stmt->execute();
@@ -167,9 +168,8 @@ class librePlanClass {
 
   public function getProjects()
   {
-    $toDay = date('Y-m-d');
-//    $Sql = "SELECT id, name FROM task_element WHERE start_date >= '$toDay' AND parent IS NULL";
-    $Sql = "SELECT id, name FROM task_element WHERE start_date >= ? OR end_date >= ? AND parent IS NULL";
+    $toDay = date('Y-m-d',mktime(0, 0, 0, date("m")  , date("d")-7, date("Y")));
+    $Sql = "SELECT id, name FROM task_element WHERE (start_date >= ? OR end_date >= ?) AND parent IS NULL";
         
     $stmt = $this->mysqli->prepare($Sql);
     $stmt->bind_param('ss',$toDay,$toDay);
@@ -178,7 +178,7 @@ class librePlanClass {
     while($stmt->fetch())
     {
       $this->Projects[$id] = ['id'=>$id, 
-          'name' => str_replace("'","&apos;",$name)];
+                              'name' => str_replace("'","&apos;",$name)];
     }
     return $this->Projects;
   }

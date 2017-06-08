@@ -59,14 +59,15 @@ class infocobClass {
   public function getNonWorkingDays()
   {
     $aHolidays = array();
-    $Today = date('Y-m-d');
+    $Today = date('Y-m-d',mktime(0, 0, 0, date("m")  , date("d")-7, date("Y")));
     $Sql = "SELECT ac_code, ac_typeaction, ac_date_prevu, ac_datefin, ac_interlocuteurcontact"
             . ", i_code, i_nom, i_codecontact, i_prenom"
             . " FROM actions "
             . "JOIN interlocuteurfiche "
             . "ON actions.ac_interlocuteurcontact = interlocuteurfiche.i_code "
-            . "WHERE " . $this->Equipe ." ". $this->And ." ac_typeaction='71ATL' "
-            . "AND ac_date_prevu > '$Today';";
+            . "WHERE ac_typeaction='71ATL' "
+            . "AND (ac_date_prevu >= '$Today' OR ac_datefin >= '$Today');";
+    
     $result = ibase_query($Sql);
     while( $aRow = ibase_fetch_assoc($result) )
     {

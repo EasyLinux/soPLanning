@@ -56,7 +56,6 @@ class raspi {
 
   public function getLines($iNbWeeks)
   {
-    $Done = false;
     $NonWorkingDays = $this->getNonWorkingDays($iNbWeeks);
     $holiDays = $this->getHoliDays();
     $Return = array();  // Array a renvoyer
@@ -65,11 +64,11 @@ class raspi {
           . "LEFT JOIN planning_projet "
           . "ON planning_periode.projet_id = planning_projet.projet_id "
           . "WHERE ? >= date_debut "
-          . "AND ? <= date_fin "
-          . "AND user_id = ?";
+          . "AND ? <= date_fin";
 
     $this->stmt = $this->dbCnx->prepare($SQL);
     $this->stmt->bind_result($user_id, $nom, $couleur, $titre, $tid, $notes);
+error_log("Users : \n".print_r($this->aUsers,true)."\n",3,"Debug.log");
     // Calcul du lundi de la semaine dernière
     $Start = date('d')-date('w')-6;
     // Parcourir <$iNbWeeks> semaines
@@ -97,54 +96,63 @@ class raspi {
           {
             $Color = "";
             $Project = "";
-            $Titre = "";
-            $Pid = "";
-            $Done = false;
             if( in_array($sDate, $holiDays) )
             {
               $Color = HOLICOLOR;
               $Project = "F&eacute;ri&eacute;";
-              $Done = true;
             }
-            if( in_array($sDate, $NonWorkingDays[$sUsrId]) && !$Done)
+            if( in_array($sDate, $NonWorkingDays[$sUsrId]) )
             {
-              $Project = 'Cong&eacute;';
-              $Color = HOLICOLOR;
-              $Done = true;
+              if( $Project == "" )
+                $Project = 'Cong&eacute;';
+              $aLine[] = ['Color' => HOLICOLOR, 'Project' => $Project,
+                  'Titre' => '', 'pid' => 0, 'uid' => $sUsrId];
             }
-            if( !$Done )
+            else
             {
-              $this->stmt->bind_param('sss',$sDate,$sDate,$sUsrId);
-              $this->stmt->execute();
-              // Lecture dans la base si correspondance
-              if($this->stmt->fetch())
-              {
-                // Remplace projet et couleur
-                $notes = str_replace("\n","",$notes);
-                $this->Tasks[$tid] = ['Color' => $couleur,
-                                      'Project' => nl2br($nom),
-                                      'Titre' => nl2br($titre),
-                                      'pid' => $tid,
-                                      'Notes' => $notes];
-                do 
-                {
-                  if( $Project == "" )
-                    $Project .= "<br/>";
-                  $Project .= $nom;
-                  $Color = $couleur;
-                  $Titre = $titre;
-                  $Pid   = $tid;
-                } while ($this->stmt->fetch());
-              }
+              $aLine[] = ['Color' => $Color, 'Project' => $Project, 'uid' => $sUsrId];
             }
-
-            $aLine[] = ['Color'   => $Color, 
-                        'Project' => $Project, 
-                        'Titre'   => $Titre,
-                        'pid'     => $Pid,                   
-                        'uid'     => $sUsrId];
           }
 
+          $this->stmt->bind_param('ss',$sDate,$sDate);
+          $this->stmt->execute();
+          // Lecture dans la base si correspondance
+          if($this->stmt->fetch())
+          {
+            do
+            {
+              // Idx est l'index dans la liste des users
+              $Idx = array_search($user_id, $this->aUsers);
+              $Uid = $this->aUsers[$Idx]['id'];
+
+              // Remplace projet et couleur
+              $notes = str_replace("\n","",$notes);
+              $this->Tasks[$tid] = ['Color' => $couleur,
+                  'Project' => nl2br($nom),
+                  'Titre' => nl2br($titre),
+                  'pid' => $tid,
+                  'Notes' => $notes];
+
+              if( $aLine[$Idx]['Project'] == "F&eacute;ri&eacute;")
+                {
+                $nom = "F&eacute;ri&eacute;";
+                $couleur = HOLICOLOR;
+                }
+              if( $aLine[$Idx]['Project'] == "Cong&eacute;")
+                {
+                $nom = "Cong&eacute;";
+                $couleur = HOLICOLOR;
+                }
+              if( $aLine[$Idx]['Project'] != ""
+                      && $aLine[$Idx]['Project'] != "F&eacute;ri&eacute;"
+                      && $aLine[$Idx]['Project'] != "Cong&eacute;")
+              { // Plusieurs taches
+                $nom .= "<br/>".$aLine[$Idx]['Project'];
+              }
+              $aLine[$Idx] = ['Color' => $couleur, 'Project' => $nom,
+                  'Titre' => $titre, 'pid' => $tid, 'nUid' => $user_id ];
+            } while ($this->stmt->fetch());
+          }
           $aLines[] = $aLine;
         }
         $Start++;
@@ -154,6 +162,7 @@ class raspi {
                    'firstDay' => $firstDay,
                    'Details' => $aLines ];
     }
+error_log(print_r($Return,true),3,"Debug.log");
   return( $Return );
   }
 

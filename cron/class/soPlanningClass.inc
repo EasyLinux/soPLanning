@@ -14,7 +14,7 @@ class soPlanningClass {
     $this->cfgPlanning['User'] = $User;
     $this->cfgPlanning['Pass'] = $Pass;
     $this->cfgPlanning['Base'] = $Base;
-    // Lire les donn�es soPlanning
+    // Lire les données soPlanning
     $this->cfgPlanning['mysqli'] = new mysqli($this->cfgPlanning['Host'], 
             $this->cfgPlanning['User'], $this->cfgPlanning['Pass'], 
             $this->cfgPlanning['Base']);
@@ -22,7 +22,7 @@ class soPlanningClass {
     // check connection 
     if (mysqli_connect_errno()) 
     {
-      printf("ERREUR Connection � la base soPlanning: %s", 
+      printf("ERREUR Connection a la base soPlanning: %s", 
               mysqli_connect_error());
       return false;
     } 
@@ -244,8 +244,10 @@ class soPlanningClass {
   {
     $spTasks = array();
     $spTasksID = array();
-    $dToday = date('Y-m-d');
-    $Sql = "SELECT periode_id, user_id, task_id FROM planning_periode WHERE (date_debut >= ? OR date_fin >= ?) AND task_id IS NOT NULL";
+    $dToday = date('Y-m-d',mktime(0, 0, 0, date("m"), date("d")-7,date("Y")));
+
+    $Sql = "SELECT periode_id, user_id, task_id FROM planning_periode "
+           . "WHERE (date_debut >= ? OR date_fin >= ?) AND task_id != ''";
     $stSelect = $this->cfgPlanning['mysqli']->prepare($Sql);
     $stSelect->bind_param('ss',$dToday,$dToday);
     $stSelect->execute();
@@ -255,59 +257,32 @@ class soPlanningClass {
       $spTasksID[] = $taskid;
     }
     unset($stSelect);
-//error_log("Liste taskId\n".print_r($spTasksID,true),3,'Cron.log');
-//error_log("Taches\n".print_r($aTasks,true),3,'Cron.log');
 
-    $reqSql = "SELECT task_id, date_debut, date_fin "
-                . "FROM planning_periode "
-                . "WHERE (date_debut >= ? OR date_fin >= ?) "
-                . "AND task_id = ?";
-    $stReq = $this->cfgPlanning['mysqli']->prepare($reqSql);
-//error_log("$reqSql\n",3,'Cron.log');
-    foreach($aTasks as $aTsk)
+    foreach($aTasks as $aTask)
     {
-//error_log("$dToday : ".$aTsk['task_id']." : ",3,'Cron.log');
-      $stReq->bind_param('sss',$dToday,$dToday,$aTsk['task_id']);
-      $stReq->execute();
-      $stReq->store_result();
-//error_log($stReq->num_rows."\n",3,'Cron.log');
-
-      $tid  = $aTsk['tid'];
-      $pid  = $aTsk['prj_id'];
-      $uid  = $aTsk['user_id'];
-      $sDate = $aTsk['date_debut'];
-      $eDate = $aTsk['date_fin'];
-      $titre = $aTsk['titre'];
-      $desc  = $aTsk['description'];
-      $taskid = $aTsk['task_id'];
-      // if( !in_array($aTsk['tid'],$spTasks) )
-      if( $stReq->num_rows > 1 )
-        error_log("soPlanning: Il y a des doublons !");
-      if( $stReq->num_rows == 0 )
-      {
-        unset($stmt);
-
-        //$nom = $aPrj['name'];
-        $Sql = "INSERT INTO planning_periode SET task_id=?, "
-                . "projet_id=?, user_id=?, date_debut=?, "
-                . "date_fin=?, titre=?, notes=?, "
-                . "statut_tache='a_faire', livrable='non', createur_id='sync'";
-        $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
-        $stmt->bind_param('sssssss',$taskid,$pid,$uid,$sDate,$eDate,$titre,$desc);
-        $stmt->execute();
-      }
-      if( $stReq->num_rows == 1 )
-      {
-        unset($stmt);
-        $Sql = "UPDATE planning_periode SET "
-                . "projet_id=?, user_id=?, date_debut=?, "
-                . "date_fin=?, titre=?, notes=? "
-                . "WHERE task_id=?";
-        $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
-        $stmt->bind_param('sssssss',$pid,$uid,$sDate,$eDate,$titre,$desc,$taskid);
-        $stmt->execute();
-      }
+      $aLibTasks[] = $aTask['task_id'];
     }
+
+    $aAllTasks = array_unique(array_merge($aLibTasks,$spTasksID));
+
+    // Synchronisation
+    foreach($aAllTasks as $theTask)
+    {
+        if( in_array($theTask,$aLibTasks) )
+        {  // Dans librePlan
+           if( in_array($theTask,$spTasksID) )
+           { // et soPlanning
+             $this->updateTask($theTask,$aTasks);
+           } else {
+             $this->insertTask($theTask,$aTasks);
+           }
+        }
+        else
+        {  // Pas dans librePlan
+           $this->delTask($theTask);
+        }
+    }
+   
   // Supprimer les doublons
   $Sql = "DELETE t1 "
 	. "FROM planning_periode AS t1, planning_periode AS t2 "
@@ -317,5 +292,73 @@ class soPlanningClass {
 		. "AND t1.date_fin = t2.date_fin";
   $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
   $stmt->execute();
+
+  }
+
+  private function delTask($task_id)
+  {
+    $Sql = "DELETE FROM planning_periode "
+                . "WHERE task_id=?";
+    $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
+    $stmt->bind_param('s',$task_id);
+    $stmt->execute();
+  }
+
+  private function insertTask($task_id,$aTasks)
+  {
+    foreach($aTasks as $aTask)
+    {
+      if($aTask['task_id'] == $task_id)
+      {
+         $Sql = "INSERT INTO planning_periode SET task_id=?, "
+                . "projet_id=?, user_id=?, date_debut=?, "
+                . "date_fin=?, titre=?, notes=?, "
+                . "statut_tache='a_faire', livrable='non', createur_id='sync'";
+         $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
+         $stmt->bind_param('sssssss',$aTask['task_id'],
+                                     $aTask['prj_id'],
+                                     $aTask['user_id'],
+                                     $aTask['date_debut'],
+                                     $aTask['date_fin'],
+                                     $aTask['titre'],
+                                     $aTask['description']);
+         $stmt->execute();
+         $Err =  $this->cfgPlanning['mysqli']->error;
+         if( $Err != "" )
+         {
+           error_log("ERR INSERT ".$aTask['task_id']. " - ".$aTask['prj_id']."\n"
+                     , 3,"ErrorCron.log");
+         }
+      }
+    }
+  }
+
+  private function updateTask($task_id,$aTasks)
+  {
+    foreach($aTasks as $aTask)
+    {
+      if($aTask['task_id'] == $task_id)
+      {
+        $Sql = "UPDATE planning_periode SET "
+                . "projet_id=?, user_id=?, date_debut=?, "
+                . "date_fin=?, titre=?, notes=? "
+                . "WHERE task_id=?";
+        $stmt = $this->cfgPlanning['mysqli']->prepare($Sql);
+         $stmt->bind_param('sssssss',$aTask['prj_id'],
+                                     $aTask['user_id'],
+                                     $aTask['date_debut'],
+                                     $aTask['date_fin'],
+                                     $aTask['titre'],
+                                     $aTask['description'],
+                                     $aTask['task_id']);
+        $stmt->execute();
+         $Err =  $this->cfgPlanning['mysqli']->error;
+         if( $Err != "" )
+         {
+           error_log("ERR UPDATE ".$aTask['task_id']. " - ".$aTask['prj_id']."\n"
+                     , 3,"ErrorCron.log");
+         }
+      }
+    }
   }
 }

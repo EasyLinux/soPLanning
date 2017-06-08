@@ -156,7 +156,7 @@ foreach( $aInfocobHolidays as &$aIH)
 
 // Mettre à jour les projets
 $aLPProjects = $oLibrePlan->getProjects();
-//error_log("Projets\n".print_r($aLPProjects,true),3,'Cron.log');
+
 $iNbProjs = count($aLPProjects);
 echo SPACE."Mise a jour des projets ($iNbProjs)" .NL;
 $oPlanning->updateProjects($aLPProjects);

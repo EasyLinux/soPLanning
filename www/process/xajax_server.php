@@ -1175,7 +1175,7 @@ function submitFormUser($user_id, $user_id_origine, $user_groupe_id, $nom, $emai
 	
 	$user_form->user_groupe_id = ($user_groupe_id != '' ? $user_groupe_id : null);
 	$user_form->login = ($login != '' ? $login : null);
-  error_log($password."\n",3,"/tmp/Pass.log");
+  
 	if($password != '') {
 		$user_form->password = sha1("¤" . $password . "¤");
     error_log("¤" . $password . "¤"."\n",3,"/tmp/Pass.log");
