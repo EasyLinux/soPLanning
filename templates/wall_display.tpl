@@ -90,15 +90,19 @@ return ;
 {foreach from=$aCalendar.Tasks item=Task}
 function cooltip_{$Task.pid}()
 {literal}{{/literal}
-Html = "<b>Projet:</b> {$Task.Project}"
-        +"<br /><b>Tache: </b> {$Task.Titre}"
-        +"<br /><b>Note: </b> {$Task.Notes}";
+Html = "<b>Projet:</b> {$Task.Project|addslashes}"
+        +"<br /><b>Tache: </b> {$Task.Titre|addslashes}"
+        +"<br /><b>Note: </b> {$Task.Notes|addslashes}";
 return coolTip(Html);
 {literal}}{/literal}
 
 {/foreach}
           
 {literal}
+      function cooltip_()
+      {
+      }
+      
       function ReloadPage()
       {
         location.reload(); 
