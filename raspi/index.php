@@ -18,8 +18,13 @@ if (mysqli_connect_errno()) {
     exit();
 } 
 
+// Par défaut on se calle sur la date du jour
+$iPast=0;
+if( isset($_GET["Past"]) )
+  $iPast=1;  // Deux mois avant
+  
 $smarty = new MySmarty();
-$oTable = new raspi();
+$oTable = new raspi($iPast);
 
 $aUsers = $oTable->listUsers();
 $allUsers = $oTable->listAllUsers();
@@ -44,6 +49,7 @@ $aCalendar = [
 ];
 
 $smarty->assign('aCalendar',$aCalendar);
+$smarty->assign('iPast',$iPast);
 
 $smarty->display('wall_display.tpl');
 

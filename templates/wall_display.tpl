@@ -19,6 +19,12 @@
   </head>
   <body>
     <div class="container">
+    	{if $iPast == 0}
+    	<a href="index.php?Past=1">Voir 2 mois pr&eacute;c&eacute;dents</a>
+    	{else}
+    	<a href="index.php">Voir depuis la date du jour</a>
+      {/if}    
+      <br />
       <table class='scroll'>
         <thead>
          <tr>

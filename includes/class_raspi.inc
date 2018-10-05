@@ -18,13 +18,32 @@ class raspi {
   private $allUsers = array(); // Tous les utilisateurs
   public  $Tasks = array();    // Les taches
 
-  public function __construct()
+  public function __construct($iPast)
   {
   require '../database.inc';
 
-  $this->Year  = date('Y');
-  $this->Month = date('m');
-  $this->Start = date('W');
+  if( $iPast == 1 )
+  { 
+  	if( date('m') < 3)
+  	{
+  		// Janvier ou février  -> Décompter un an
+      $this->Year  = date('Y')-1;
+      $this->Month = 9 + date('m');
+      $this->Start = date('W');
+  	}
+  	else
+  	{
+      $this->Year  = date('Y');
+      $this->Month = date('m')-2;
+      $this->Start = date('W');
+  	}
+  }
+  else
+  {
+    $this->Year  = date('Y');
+    $this->Month = date('m');
+    $this->Start = date('W');
+  }
 
   $this->dbCnx  = new mysqli($cfgHostname, $cfgUsername, $cfgPassword,$cfgDatabase);
   }
